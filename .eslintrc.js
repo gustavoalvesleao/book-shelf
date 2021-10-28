@@ -29,6 +29,13 @@ module.exports = {
         extensions: [".tsx"],
       },
     ],
+    "jsx-a11y/label-has-associated-control": [
+      2,
+      {
+        controlComponents: ["Input"],
+        depth: 3,
+      },
+    ],
     "react/jsx-one-expression-per-line": "off",
     "import/extensions": "off",
     "import/prefer-default-export": "off",
@@ -39,6 +46,11 @@ module.exports = {
     "react/jsx-props-no-spreading": 0,
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-boolean-value": "off",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "import/order": [
       "error",
       {
@@ -56,9 +68,7 @@ module.exports = {
     {
       // enable the rule specifically for TypeScript files
       files: ["*.ts", "*.tsx"],
-      rules: {
-        "@typescript-eslint/explicit-function-return-type": ["warn"],
-      },
+      rules: {},
     },
   ],
   settings: {
