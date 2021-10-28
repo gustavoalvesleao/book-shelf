@@ -51,6 +51,10 @@ module.exports = {
     "@typescript-eslint/no-shadow": ["error"],
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      { devDependencies: ["**/*.test.ts", "**/*.test.tsx"] },
+    ],
     "import/order": [
       "error",
       {
