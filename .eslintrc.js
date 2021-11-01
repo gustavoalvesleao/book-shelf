@@ -48,9 +48,10 @@ module.exports = {
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-boolean-value": "off",
     "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["error"],
+    "@typescript-eslint/no-shadow": ["warn"],
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
+    "no-nested-ternary": "off",
     "import/no-extraneous-dependencies": [
       "error",
       { devDependencies: ["**/*.test.ts", "**/*.test.tsx"] },

@@ -1,12 +1,19 @@
 import { Dialog as ReachDialog } from "@reach/dialog";
 import styled from "@emotion/styled/macro";
+import { keyframes } from "@emotion/react";
+import { FaSpinner } from "react-icons/fa";
 
-import * as colors from "../../styles/colors";
-import * as mq from "../../styles/media-queries";
+import * as colors from "styles/colors";
+import * as mq from "styles/media-queries";
 
 interface ButtonProps {
   variant?: keyof typeof buttonVariants;
 }
+
+const spin = keyframes({
+  "0%": { transform: "rotate(0deg)" },
+  "100%": { transform: "rotate(360deg)" },
+});
 
 const buttonVariants = {
   primary: {
@@ -18,6 +25,20 @@ const buttonVariants = {
     color: colors.text,
   },
 };
+
+const BookListUL = styled.ul({
+  listStyle: "none",
+  padding: "0",
+  display: "grid",
+  gridTemplateRows: "repeat(auto-fill, minmax(100px, 1fr))",
+  gridGap: "1em",
+});
+
+const Spinner = styled(FaSpinner)({
+  animation: `${spin} 1s linear infinite`,
+});
+
+Spinner.defaultProps = { "aria-label": "loading" };
 
 const Button = styled.button(
   {
@@ -69,4 +90,4 @@ const FormGroup = styled.div({
   flexDirection: "column",
 });
 
-export { Button, Input, CircleButton, Dialog, FormGroup };
+export { Button, Input, CircleButton, Dialog, FormGroup, Spinner, BookListUL };

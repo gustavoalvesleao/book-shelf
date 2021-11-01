@@ -8,14 +8,7 @@ import { DialogProps } from "@reach/dialog";
 
 import { Dialog, CircleButton } from "../Lib";
 
-interface ModalState {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}
-
-interface ModalProps {
-  children: React.ReactNode;
-}
+import { ModalProps, ModalState } from "./types";
 
 function callAll<Args extends Array<unknown>>(
   ...fns: Array<((...args: Args) => unknown) | undefined>
