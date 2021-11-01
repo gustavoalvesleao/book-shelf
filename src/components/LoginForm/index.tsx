@@ -4,7 +4,7 @@
 import { jsx } from "@emotion/react";
 import React from "react";
 
-import { Button, FormGroup, Input } from "../Lib";
+import { Button, FormGroup, Input, Spinner } from "../Lib";
 
 import { FormProps, LoginFormElements } from "./types";
 
@@ -47,6 +47,7 @@ function LoginForm({ onSubmit, buttonText }: FormProps) {
       </FormGroup>
       <div>
         <Button type="submit">{buttonText}</Button>
+        <Spinner />
       </div>
     </form>
   );

@@ -1,12 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 
-import App from "./App";
+import LoginScreen from "./index";
 
-describe("<App />", () => {
-  describe("Given that I'm in the Home Page", () => {
+describe("<LoginScreen />", () => {
+  describe("Given that I'm in the Loggin Screen", () => {
     beforeEach(() => {
-      render(<App />);
+      render(<LoginScreen />);
     });
 
     test("The title, and Login and Register buttons are present", () => {
