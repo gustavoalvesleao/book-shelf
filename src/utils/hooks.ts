@@ -1,22 +1,4 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-
 import * as React from "react";
-
-// function useSafeDispatch(dispatch) {
-//   const mounted = React.useRef(false);
-
-//   React.useLayoutEffect(() => {
-//     mounted.current = true;
-//     return () => {
-//       mounted.current = false;
-//     };
-//   }, []);
-
-//   return React.useCallback(
-//     (...args) => (mounted.current ? dispatch(...args) : undefined),
-//     [dispatch]
-//   );
-// }
 
 type AsyncState<DataType> =
   | {
@@ -88,7 +70,8 @@ function asyncReducer<DataType>(
 }
 
 function useAsync<DataType>() {
-  const [state, dispatch] = React.useReducer<
+  const mounted = React.useRef(false);
+  const [state, unsafeDispatch] = React.useReducer<
     React.Reducer<AsyncState<DataType>, AsyncAction<DataType>>
   >(asyncReducer, {
     status: "idle",
@@ -96,26 +79,41 @@ function useAsync<DataType>() {
     error: null,
   });
 
-  const { data, error, status } = state;
-
-  const run = React.useCallback((promise: Promise<DataType>) => {
-    dispatch({ type: "pending", promise });
-    promise.then(
-      (data) => {
-        dispatch({ type: "resolved", data, promise });
-      },
-      (error) => {
-        dispatch({ type: "rejected", error, promise });
-      }
-    );
+  React.useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
+  const dispatch = React.useCallback(
+    (action) => (mounted.current ? unsafeDispatch(action) : undefined),
+    [unsafeDispatch]
+  );
+
+  const { data, error, status } = state;
+
+  const run = React.useCallback(
+    (promise: Promise<DataType>) => {
+      dispatch({ type: "pending", promise });
+      promise.then(
+        (successResponse) => {
+          dispatch({ type: "resolved", data: successResponse, promise });
+        },
+        (errorResponse) => {
+          dispatch({ type: "rejected", error: errorResponse, promise });
+        }
+      );
+    },
+    [dispatch]
+  );
+
   const setData = React.useCallback(
-    (data: DataType) => dispatch({ type: "resolved", data }),
+    (newData: DataType) => dispatch({ type: "resolved", data: newData }),
     [dispatch]
   );
   const setError = React.useCallback(
-    (error: Error) => dispatch({ type: "rejected", error }),
+    (newError: Error) => dispatch({ type: "rejected", error: newError }),
     [dispatch]
   );
 

@@ -48,7 +48,10 @@ module.exports = {
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-boolean-value": "off",
     "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["warn"],
+    "@typescript-eslint/no-shadow": [
+      "warn",
+      { ignoreFunctionTypeParameterNameValueShadow: true },
+    ],
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "no-nested-ternary": "off",

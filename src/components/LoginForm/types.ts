@@ -4,7 +4,7 @@ export interface FormData {
 }
 
 export interface FormProps {
-  onSubmit: (formData: FormData) => void;
+  onSubmit: (formData: FormData) => Promise<void>;
   buttonText: string;
 }
 

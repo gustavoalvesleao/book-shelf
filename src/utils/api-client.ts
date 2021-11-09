@@ -1,21 +1,53 @@
+import * as auth from "auth-provider";
+
+const apiURL = process.env.REACT_APP_API_URL;
+
 interface CustomConfig {
+  data?: unknown;
   method?: "GET" | "POST";
+  token?: string;
+  headers?: {
+    "Content-Type"?: string;
+    Authorization?: string;
+  };
+  abortController?: AbortController;
 }
 
-async function client(endpoint: string, customConfig?: CustomConfig) {
+async function client(
+  endpoint: string,
+  {
+    data,
+    token,
+    abortController,
+    headers: customHeaders,
+    ...customConfig
+  }: CustomConfig = {}
+) {
   const config = {
-    method: "GET",
+    method: data ? "POST" : "GET",
+    body: data ? JSON.stringify(data) : undefined,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": data ? "application/json" : "",
+      ...customHeaders,
+    },
+    signal: abortController ? abortController.signal : undefined,
     ...customConfig,
   };
 
   return window
-    .fetch(`${process.env.REACT_APP_API_URL}/${endpoint}`, config)
+    .fetch(`${apiURL}/${endpoint}`, config)
     .then(async (response) => {
-      const data = await response.json();
-      if (response.ok) {
-        return data;
+      if (response.status === 401) {
+        await auth.logout();
+        window.location.assign(window.location.pathname);
+        return Promise.reject(Error("Please re-authenticate"));
       }
-      return Promise.reject(data);
+      const newData = await response.json();
+      if (response.ok) {
+        return newData;
+      }
+      return Promise.reject(newData);
     });
 }
 

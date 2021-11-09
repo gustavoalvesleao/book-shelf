@@ -4,20 +4,26 @@
 import { jsx } from "@emotion/react";
 import React from "react";
 
-import { Button, FormGroup, Input, Spinner } from "../Lib";
+import { useAsync } from "utils/hooks";
+
+import { Button, ErrorMessage, FormGroup, Input, Spinner } from "../Lib";
 
 import { FormProps, LoginFormElements } from "./types";
 
 function LoginForm({ onSubmit, buttonText }: FormProps) {
-  function handleSubmit(event: React.FormEvent<LoginFormElements>) {
+  const { isLoading, isError, error, run } = useAsync();
+
+  const handleSubmit = (event: React.FormEvent<LoginFormElements>) => {
     event.preventDefault();
     const { username, password } = event.currentTarget.elements;
 
-    onSubmit({
-      username: username.value,
-      password: password.value,
-    });
-  }
+    run(
+      onSubmit({
+        username: username.value,
+        password: password.value,
+      })
+    );
+  };
 
   return (
     <form
@@ -46,9 +52,12 @@ function LoginForm({ onSubmit, buttonText }: FormProps) {
         </label>
       </FormGroup>
       <div>
-        <Button type="submit">{buttonText}</Button>
-        <Spinner />
+        <Button type="submit">
+          {buttonText}
+          {isLoading ? <Spinner css={{ marginLeft: 5 }} /> : null}
+        </Button>
       </div>
+      {isError ? <ErrorMessage error={error} /> : null}
     </form>
   );
 }
