@@ -1,18 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { build, fake } from "@jackfranklin/test-data-bot";
 
-import LoginForm, { FormData } from "./index";
+import { buildLoginForm } from "test/test-utils";
 
-const buildLoginForm = build<FormData>({
-  fields: {
-    username: fake((f) => f.internet.userName()),
-    password: fake((f) => f.internet.password()),
-  },
-});
+import LoginForm from "./index";
 
-test("submitting the form calls onSubmit with username and password", () => {
-  const handleSubmit = jest.fn();
+test("submitting the form calls onSubmit with username and password", async () => {
+  const handleSubmit = jest.fn().mockImplementation(() => Promise.resolve());
+
   render(<LoginForm onSubmit={handleSubmit} buttonText="Login" />);
 
   const { username, password } = buildLoginForm();
@@ -25,4 +24,5 @@ test("submitting the form calls onSubmit with username and password", () => {
     password,
   });
   expect(handleSubmit).toHaveBeenCalledTimes(1);
+  await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i));
 });

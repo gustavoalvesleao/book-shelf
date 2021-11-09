@@ -1,14 +1,15 @@
+/** @jsxRuntime classic */
+/** @jsx jsx */
+// eslint-disable-next-line
+import { jsx, keyframes } from "@emotion/react";
+import React from "react";
+
 import { Dialog as ReachDialog } from "@reach/dialog";
 import styled from "@emotion/styled/macro";
-import { keyframes } from "@emotion/react";
 import { FaSpinner } from "react-icons/fa";
 
 import * as colors from "styles/colors";
 import * as mq from "styles/media-queries";
-
-interface ButtonProps {
-  variant?: keyof typeof buttonVariants;
-}
 
 const spin = keyframes({
   "0%": { transform: "rotate(0deg)" },
@@ -40,6 +41,55 @@ const Spinner = styled(FaSpinner)({
 
 Spinner.defaultProps = { "aria-label": "loading" };
 
+const errorMessageVariants = {
+  stacked: { display: "block" },
+  inline: { display: "inline-block" },
+};
+
+function ErrorMessage({
+  error,
+  variant = "stacked",
+  ...props
+}: {
+  error: Error | null | undefined;
+  variant?: keyof typeof errorMessageVariants;
+}) {
+  return (
+    <div
+      role="alert"
+      css={[{ color: colors.danger }, errorMessageVariants[variant]]}
+      {...props}
+    >
+      <span>There was an error: </span>
+      <pre
+        css={[
+          { whiteSpace: "break-spaces", margin: "0", marginBottom: -5 },
+          errorMessageVariants[variant],
+        ]}
+      >
+        {error?.message}
+      </pre>
+    </div>
+  );
+}
+
+function FullPageSpinner() {
+  return (
+    <div
+      css={{
+        fontSize: "4em",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Spinner />
+    </div>
+  );
+}
+
 const Button = styled.button(
   {
     padding: "10px 15px",
@@ -48,7 +98,8 @@ const Button = styled.button(
     borderRadius: "3px",
     cursor: "pointer",
   },
-  ({ variant = "primary" }: ButtonProps) => buttonVariants[variant]
+  ({ variant = "primary" }: { variant?: keyof typeof buttonVariants }) =>
+    buttonVariants[variant]
 );
 
 const Input = styled.input({
@@ -90,4 +141,14 @@ const FormGroup = styled.div({
   flexDirection: "column",
 });
 
-export { Button, Input, CircleButton, Dialog, FormGroup, Spinner, BookListUL };
+export {
+  Button,
+  Input,
+  CircleButton,
+  Dialog,
+  FormGroup,
+  Spinner,
+  BookListUL,
+  ErrorMessage,
+  FullPageSpinner,
+};

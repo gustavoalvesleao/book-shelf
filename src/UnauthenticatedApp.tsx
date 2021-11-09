@@ -6,22 +6,17 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap-reboot.css";
 import "@reach/dialog/styles.css";
 
-import { Logo } from "components/Logo";
-import LoginForm, { FormData } from "components/LoginForm";
-import { Button } from "components/Lib";
-import { Modal, ModalContents, ModalOpenButton } from "components/Modal";
+import { Logo } from "./components/Logo";
+import LoginForm, { FormData } from "./components/LoginForm";
+import { Button } from "./components/Lib";
+import { Modal, ModalContents, ModalOpenButton } from "./components/Modal";
 
-function LoginScreen() {
-  const login = (formData: FormData) => {
-    // eslint-disable-next-line
-    console.log(formData);
-  };
+interface Props {
+  login: (form: FormData) => Promise<void>;
+  register: (form: FormData) => Promise<void>;
+}
 
-  const register = (formData: FormData) => {
-    // eslint-disable-next-line
-    console.log(formData);
-  };
-
+function UnauthenticatedApp({ login, register }: Props) {
   return (
     <div
       css={{
@@ -64,4 +59,4 @@ function LoginScreen() {
   );
 }
 
-export default LoginScreen;
+export default UnauthenticatedApp;
