@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import { FormData } from "components/LoginForm";
 import { FullPageSpinner } from "components/Lib";
@@ -7,18 +8,14 @@ import { client } from "utils/api-client";
 import { useAsync } from "utils/hooks";
 import * as colors from "styles/colors";
 
+import { User } from "utils/types";
+
 import * as auth from "./auth-provider";
 
 const AuthenticatedApp = React.lazy(async () => import("./AuthenticatedApp"));
 const UnauthenticatedApp = React.lazy(
   async () => import("./UnauthenticatedApp")
 );
-
-interface User {
-  id: string;
-  token: string;
-  username: string;
-}
 
 async function getUser() {
   const token = await auth.getToken();
@@ -80,7 +77,9 @@ function App() {
     return (
       <React.Suspense fallback={<FullPageSpinner />}>
         {user ? (
-          <AuthenticatedApp user={user} logout={logout} />
+          <Router>
+            <AuthenticatedApp user={user} logout={logout} />
+          </Router>
         ) : (
           <UnauthenticatedApp login={login} register={register} />
         )}

@@ -3,13 +3,14 @@
 // eslint-disable-next-line
 import { jsx } from "@emotion/react";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import * as mq from "styles/media-queries";
 import * as colors from "styles/colors";
 
-import { Books } from "./types";
+import { Book } from "./types";
 
-function BookRow({ book }: { book: Books }) {
+function BookRow({ book }: { book: Book }) {
   const { title, author, coverImageUrl } = book;
 
   const id = `book-row-book-${book.id}`;
@@ -23,7 +24,8 @@ function BookRow({ book }: { book: Books }) {
         position: "relative",
       }}
     >
-      <div
+      <Link
+        to={`/book/${book.id}`}
         aria-labelledby={id}
         css={{
           minHeight: 270,
@@ -87,7 +89,7 @@ function BookRow({ book }: { book: Books }) {
             {book.synopsis.substring(0, 500)}...
           </small>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

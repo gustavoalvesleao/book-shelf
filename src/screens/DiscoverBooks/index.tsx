@@ -7,24 +7,26 @@ import Tooltip from "@reach/tooltip";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
 import BookRow from "components/BookRow";
-import { Input, BookListUL, Spinner } from "components/Lib";
+import { Input, BookListUL, Spinner, ErrorMessage } from "components/Lib";
 import { client } from "utils/api-client";
 import { useAsync } from "utils/hooks";
 import * as colors from "styles/colors";
 
+import { User } from "utils/types";
+
 import { Data, SearchFormElements } from "./types";
 
-function DiscoverBooksScreen() {
+function DiscoverBooksScreen({ user }: { user: User }) {
   const { data, error, run, isLoading, isError, isSuccess } = useAsync<Data>();
   const [query, setQuery] = React.useState<string>("");
   const [queried, setQueried] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if (!queried) {
-      return;
-    }
-    run(client(`books?query=${encodeURIComponent(query)}`));
-  }, [run, queried, query]);
+    if (!queried) return;
+    run(
+      client(`books?query=${encodeURIComponent(query)}`, { token: user.token })
+    );
+  }, [run, queried, query, user.token]);
 
   const handleSearchSubmit = (event: React.FormEvent<SearchFormElements>) => {
     event.preventDefault();
@@ -66,12 +68,7 @@ function DiscoverBooksScreen() {
         </Tooltip>
       </form>
 
-      {isError ? (
-        <div css={{ color: colors.danger }}>
-          <p>There was an error:</p>
-          <pre>{error && error.message}</pre>
-        </div>
-      ) : null}
+      {isError ? <ErrorMessage error={error} /> : null}
 
       {isSuccess ? (
         data?.books?.length ? (
