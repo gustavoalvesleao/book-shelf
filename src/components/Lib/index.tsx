@@ -3,6 +3,7 @@
 // eslint-disable-next-line
 import { jsx, keyframes } from "@emotion/react";
 import React from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 import { Dialog as ReachDialog } from "@reach/dialog";
 import styled from "@emotion/styled/macro";
@@ -26,6 +27,14 @@ const buttonVariants = {
     color: colors.text,
   },
 };
+
+const Link = styled(RouterLink)({
+  color: colors.indigo,
+  ":hover": {
+    color: colors.indigoDarken10,
+    textDecoration: "underline",
+  },
+});
 
 const BookListUL = styled.ul({
   listStyle: "none",
@@ -151,4 +160,5 @@ export {
   BookListUL,
   ErrorMessage,
   FullPageSpinner,
+  Link,
 };

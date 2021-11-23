@@ -1,5 +1,7 @@
 import { rest } from "msw";
 
+import { Book } from "components/BookRow";
+
 interface AuthBody {
   username: string;
   password: string;
@@ -32,10 +34,28 @@ interface RegisterResponse {
   message?: string;
 }
 
+interface BookResponse {
+  author: string;
+  coverImageUrl: string;
+  id: string;
+  pageCount: number;
+  publisher: string;
+  synopsis: string;
+  title: string;
+}
+
+interface BooksResponse {
+  books?: Array<Book>;
+  message?: string;
+  status?: number;
+}
+
 const delay = process.env.NODE_ENV === "test" ? 0 : 1500;
 const loginURL = "https://auth-provider.jk/auth/login";
 const registerURL = "https://auth-provider.jk/auth/register";
 const meURL = "https://bookshelf.jk/api/me";
+const booksURL = "https://bookshelf.jk/api/books";
+const bookURL = "https://bookshelf.jk/api/books/:bookId";
 
 const handlers = [
   rest.post<AuthBody, AuthResponse>(loginURL, async (req, res, ctx) => {
@@ -94,6 +114,64 @@ const handlers = [
       })
     )
   ),
+
+  rest.get<BooksResponse>(booksURL, async (req, res, ctx) => {
+    const bookName = req.url.searchParams.get("query");
+
+    if (bookName === "dont exist") {
+      return res(
+        ctx.delay(delay),
+        ctx.json({
+          books: [],
+        })
+      );
+    }
+
+    if (bookName === "FAIL") {
+      return res(
+        ctx.delay(delay),
+        ctx.json({
+          message: "Request failure (for testing purposes).",
+        }),
+        ctx.status(500)
+      );
+    }
+    return res(
+      ctx.delay(delay),
+      ctx.json({
+        books: [
+          {
+            author: `${bookName} author test`,
+            coverImageUrl: "",
+            id: "123",
+            pageCount: 123,
+            publisher: `${bookName} publisher test`,
+            synopsis: `${bookName} synopsis test`,
+            title: `${bookName} title test`,
+          },
+        ],
+      })
+    );
+  }),
+
+  rest.get<BookResponse>(bookURL, async (req, res, ctx) => {
+    const { bookId } = req.params;
+
+    return res(
+      ctx.delay(delay),
+      ctx.json({
+        book: {
+          author: `${bookId} author test`,
+          coverImageUrl: "",
+          id: "123",
+          pageCount: 123,
+          publisher: `${bookId} publisher test`,
+          synopsis: `${bookId} synopsis test`,
+          title: `${bookId} title test`,
+        },
+      })
+    );
+  }),
 ];
 
 export { handlers };

@@ -3,17 +3,18 @@
 // eslint-disable-next-line
 import { jsx } from "@emotion/react";
 import React from "react";
+import { Routes, Route, Link, LinkProps } from "react-router-dom";
+
+import DiscoverBooksScreen from "screens/DiscoverBooks";
+import NotFoundScreen from "screens/NotFound";
+import BookScreen from "screens/Book";
+
+import { User } from "utils/types";
 
 import { Button } from "./components/Lib";
-import DiscoverBooksScreen from "./screens/DiscoverBooksScreen";
 
 import * as mq from "./styles/media-queries";
-
-interface User {
-  id: string;
-  token: string;
-  username: string;
-}
+import * as colors from "./styles/colors";
 
 interface Props {
   user: User;
@@ -57,9 +58,76 @@ function AuthenticatedApp({ user, logout }: Props) {
           },
         }}
       >
-        <DiscoverBooksScreen />
+        <div css={{ position: "relative" }}>
+          <Nav />
+        </div>
+        <main css={{ width: "100%" }}>
+          <AppRoutes user={user} />
+        </main>
       </div>
     </React.Fragment>
+  );
+}
+
+function NavLink(props: Omit<LinkProps, "className" | "style">) {
+  return (
+    <Link
+      css={{
+        display: "block",
+        padding: "8px 15px 8px 10px",
+        margin: "5px 0",
+        width: "100%",
+        height: "100%",
+        color: colors.text,
+        borderRadius: "2px",
+        borderLeft: "5px solid transparent",
+        ":hover": {
+          color: colors.indigo,
+          textDecoration: "none",
+          background: colors.gray10,
+        },
+      }}
+      {...props}
+    />
+  );
+}
+
+function Nav() {
+  return (
+    <nav
+      css={{
+        position: "sticky",
+        top: "4px",
+        padding: "1em 1.5em",
+        border: `1px solid ${colors.gray10}`,
+        borderRadius: "3px",
+        [mq.small]: {
+          position: "static",
+          top: "auto",
+        },
+      }}
+    >
+      <ul
+        css={{
+          listStyle: "none",
+          padding: "0",
+        }}
+      >
+        <li>
+          <NavLink to="/discover">Discover</NavLink>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
+function AppRoutes({ user }: { user: User }) {
+  return (
+    <Routes>
+      <Route path="/discover" element={<DiscoverBooksScreen user={user} />} />
+      <Route path="/book/:bookId" element={<BookScreen user={user} />} />
+      <Route path="*" element={<NotFoundScreen />} />
+    </Routes>
   );
 }
 

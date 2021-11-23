@@ -1,4 +1,4 @@
-import { Books } from "../../components/BookRow";
+import { Book } from "../../components/BookRow";
 
 export interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;
@@ -8,5 +8,5 @@ export interface SearchFormElements extends HTMLFormElement {
 }
 
 export interface Data {
-  books: Array<Books>;
+  books: Array<Book>;
 }
