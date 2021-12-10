@@ -4,7 +4,7 @@ const apiURL = process.env.REACT_APP_API_URL;
 
 interface CustomConfig {
   data?: unknown;
-  method?: "GET" | "POST";
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   token?: string;
   headers?: {
     "Content-Type"?: string;

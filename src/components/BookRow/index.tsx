@@ -4,14 +4,25 @@
 import { jsx } from "@emotion/react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "react-query";
 
 import * as mq from "styles/media-queries";
 import * as colors from "styles/colors";
+import { client } from "utils/api-client";
+import { Book, ListItem, User } from "utils/types";
 
-import { Book } from "./types";
+import Rating from "components/Rating";
+import StatusButtons from "components/StatusButtons";
 
-function BookRow({ book }: { book: Book }) {
+function BookRow({ user, book }: { user: User; book: Book }) {
   const { title, author, coverImageUrl } = book;
+
+  const { data: listItems } = useQuery("list-items", () =>
+    client("list-items", { token: user.token }).then((data) => data.listItems)
+  );
+
+  const listItem =
+    listItems?.find((li: ListItem) => li.bookId === book.id) ?? null;
 
   const id = `book-row-book-${book.id}`;
 
@@ -71,6 +82,9 @@ function BookRow({ book }: { book: Book }) {
               >
                 {title}
               </h2>
+              {listItem?.finishDate ? (
+                <Rating user={user} listItem={listItem} />
+              ) : null}
             </div>
             <div css={{ marginLeft: 10 }}>
               <div
@@ -90,9 +104,22 @@ function BookRow({ book }: { book: Book }) {
           </small>
         </div>
       </Link>
+      <div
+        css={{
+          marginLeft: "20px",
+          position: "absolute",
+          right: -20,
+          color: colors.gray80,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-around",
+          height: "100%",
+        }}
+      >
+        <StatusButtons user={user} book={book} />
+      </div>
     </div>
   );
 }
 
-export * from "./types";
 export default BookRow;

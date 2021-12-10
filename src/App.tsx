@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 import { FormData } from "components/LoginForm";
 import { FullPageSpinner } from "components/Lib";
@@ -16,6 +17,8 @@ const AuthenticatedApp = React.lazy(async () => import("./AuthenticatedApp"));
 const UnauthenticatedApp = React.lazy(
   async () => import("./UnauthenticatedApp")
 );
+
+const queryClient = new QueryClient();
 
 async function getUser() {
   const token = await auth.getToken();
@@ -78,7 +81,9 @@ function App() {
       <React.Suspense fallback={<FullPageSpinner />}>
         {user ? (
           <Router>
-            <AuthenticatedApp user={user} logout={logout} />
+            <QueryClientProvider client={queryClient}>
+              <AuthenticatedApp user={user} logout={logout} />
+            </QueryClientProvider>
           </Router>
         ) : (
           <UnauthenticatedApp login={login} register={register} />

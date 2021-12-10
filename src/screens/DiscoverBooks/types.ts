@@ -1,4 +1,4 @@
-import { Book } from "../../components/BookRow";
+import { Book } from "utils/types";
 
 export interface FormElements extends HTMLFormControlsCollection {
   search: HTMLInputElement;

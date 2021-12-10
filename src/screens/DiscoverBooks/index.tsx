@@ -5,11 +5,11 @@ import { jsx } from "@emotion/react";
 import React from "react";
 import Tooltip from "@reach/tooltip";
 import { FaSearch, FaTimes } from "react-icons/fa";
+import { useQuery } from "react-query";
 
 import BookRow from "components/BookRow";
 import { Input, BookListUL, Spinner, ErrorMessage } from "components/Lib";
 import { client } from "utils/api-client";
-import { useAsync } from "utils/hooks";
 import * as colors from "styles/colors";
 
 import { User } from "utils/types";
@@ -17,22 +17,17 @@ import { User } from "utils/types";
 import { Data, SearchFormElements } from "./types";
 
 function DiscoverBooksScreen({ user }: { user: User }) {
-  const { data, error, run, isLoading, isError, isSuccess } = useAsync<Data>();
   const [query, setQuery] = React.useState<string>("");
-  const [queried, setQueried] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    if (!queried) return;
-    run(
+  const { data, error, isLoading, isError, isSuccess } = useQuery<Data, Error>(
+    ["bookSearch", { query }],
+    () =>
       client(`books?query=${encodeURIComponent(query)}`, { token: user.token })
-    );
-  }, [run, queried, query, user.token]);
+  );
 
   const handleSearchSubmit = (event: React.FormEvent<SearchFormElements>) => {
     event.preventDefault();
     const { search } = event.currentTarget.elements;
     setQuery(search.value);
-    setQueried(true);
   };
 
   return (
@@ -75,7 +70,7 @@ function DiscoverBooksScreen({ user }: { user: User }) {
           <BookListUL css={{ marginTop: 20 }}>
             {data.books.map((book) => (
               <li key={book.id} aria-label={book.title}>
-                <BookRow key={book.id} book={book} />
+                <BookRow key={book.id} book={book} user={user} />
               </li>
             ))}
           </BookListUL>
