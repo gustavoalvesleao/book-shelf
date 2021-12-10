@@ -1,6 +1,6 @@
 import { rest } from "msw";
 
-import { Book } from "components/BookRow";
+import { Book } from "utils/types";
 
 interface AuthBody {
   username: string;

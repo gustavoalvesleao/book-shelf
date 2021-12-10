@@ -4,19 +4,19 @@
 import { jsx } from "@emotion/react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import Tooltip from "@reach/tooltip";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
-import { User } from "utils/types";
-import { useAsync } from "utils/hooks";
+import { ListItem, User } from "utils/types";
 import { client } from "utils/api-client";
-import { Book } from "components/BookRow";
-
+import { debounce, formatDate } from "utils/misc";
+import StatusButtons from "components/StatusButtons";
+import Rating from "components/Rating";
+import { Textarea } from "components/Lib";
 import * as mq from "styles/media-queries";
-
-import bookPlaceholderSvg from "../../assets/book-placeholder.svg";
-
-export interface Data {
-  book: Book;
-}
+import * as colors from "styles/colors";
+import bookPlaceholderSvg from "assets/book-placeholder.svg";
 
 const loadingBook = {
   title: "Loading...",
@@ -29,14 +29,19 @@ const loadingBook = {
 
 function BookScreen({ user }: { user: User }) {
   const { bookId } = useParams();
-  const { data, run } = useAsync<Data>();
 
-  React.useEffect(() => {
-    run(client(`books/${bookId}`, { token: user.token }));
-  }, [run, bookId, user.token]);
+  const { data: book = loadingBook } = useQuery(["book", { bookId }], () =>
+    client(`books/${bookId}`, { token: user.token }).then((data) => data.book)
+  );
 
-  const { title, author, coverImageUrl, publisher, synopsis } =
-    data?.book ?? loadingBook;
+  const { data: listItems } = useQuery("list-items", () =>
+    client("list-items", { token: user.token }).then((data) => data.listItems)
+  );
+
+  const listItem =
+    listItems?.find((li: ListItem) => li.bookId === book.id) ?? null;
+
+  const { title, author, coverImageUrl, publisher, synopsis } = book;
 
   return (
     <div>
@@ -67,12 +72,101 @@ function BookScreen({ user }: { user: User }) {
                 <i>{publisher}</i>
               </div>
             </div>
+            <div
+              css={{
+                right: 0,
+                color: colors.gray80,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-around",
+                minHeight: 100,
+              }}
+            >
+              {book.loadingBook ? null : (
+                <StatusButtons user={user} book={book} />
+              )}
+            </div>
+          </div>
+          <div css={{ marginTop: 10, height: 46 }}>
+            {listItem?.finishDate ? (
+              <Rating user={user} listItem={listItem} />
+            ) : null}
+            {listItem ? <ListItemTimeframe listItem={listItem} /> : null}
           </div>
           <br />
           <p>{synopsis}</p>
         </div>
       </div>
+      {!book.loadingBook && listItem ? (
+        <NotesTextarea user={user} listItem={listItem} />
+      ) : null}
     </div>
+  );
+}
+
+function ListItemTimeframe({ listItem }: { listItem: ListItem }) {
+  const timeframeLabel = listItem.finishDate
+    ? "Start and finish date"
+    : "Start date";
+
+  return (
+    <Tooltip label={timeframeLabel}>
+      <div aria-label={timeframeLabel} css={{ marginTop: 6 }}>
+        <FaRegCalendarAlt css={{ marginTop: -2, marginRight: 5 }} />
+        <span>
+          {formatDate(listItem.startDate)}{" "}
+          {listItem.finishDate ? `— ${formatDate(listItem.finishDate)}` : null}
+        </span>
+      </div>
+    </Tooltip>
+  );
+}
+
+function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation(
+    (updates: { id: string; notes: string }) =>
+      client(`list-items/${updates.id}`, {
+        method: "PUT",
+        data: updates,
+        token: user.token,
+      }),
+    { onSettled: () => queryClient.invalidateQueries("list-items") }
+  );
+
+  const [debouncedMutate] = React.useMemo(
+    () => debounce(mutate, 300),
+    [mutate]
+  );
+
+  const handleNotesChange = (e: string) => {
+    debouncedMutate({ id: listItem.id, notes: e });
+  };
+
+  return (
+    <React.Fragment>
+      <div>
+        <label
+          htmlFor="notes"
+          css={{
+            display: "inline-block",
+            marginRight: 10,
+            marginTop: "0",
+            marginBottom: "0.5rem",
+            fontWeight: "bold",
+          }}
+        >
+          Notes
+        </label>
+      </div>
+      <Textarea
+        id="notes"
+        defaultValue={listItem.notes}
+        onChange={(e) => handleNotesChange(e.target.value)}
+        css={{ width: "100%", minHeight: 300 }}
+      />
+    </React.Fragment>
   );
 }
 

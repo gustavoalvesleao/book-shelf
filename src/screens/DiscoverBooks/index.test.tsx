@@ -7,11 +7,20 @@ import {
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { BrowserRouter as Router } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 import { handlers } from "../../test/server-handlers";
 import { buildUser } from "../../test/test-utils";
 
 import DiscoverBooksScreen from "./index";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 0,
+    },
+  },
+});
 
 const server = setupServer(...handlers);
 
@@ -27,21 +36,27 @@ describe("<DiscoverBooksScreen />", () => {
     beforeEach(() => {
       render(
         <Router>
-          <DiscoverBooksScreen user={user} />
+          <QueryClientProvider client={queryClient}>
+            <DiscoverBooksScreen user={user} />
+          </QueryClientProvider>
         </Router>
       );
     });
 
     describe("and I enter an existing book name and click the search button", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
+        await waitForElementToBeRemoved(() =>
+          screen.getByLabelText(/loading/i)
+        );
+      });
+
+      test("The book is information displayed on the screen", async () => {
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           bookName
         );
         userEvent.click(screen.getByRole("button", { name: /search/i }));
-      });
 
-      test("The book is information displayed on the screen", async () => {
         expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 
         await waitForElementToBeRemoved(() =>
@@ -65,15 +80,13 @@ describe("<DiscoverBooksScreen />", () => {
     });
 
     describe("And an error occur in the request", () => {
-      beforeEach(() => {
+      test("A failure error message is displayed in the screen", async () => {
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           "FAIL"
         );
         userEvent.click(screen.getByRole("button", { name: /search/i }));
-      });
 
-      test("A failure error message is displayed in the screen", async () => {
         expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 
         await waitForElementToBeRemoved(() =>
@@ -93,15 +106,13 @@ describe("<DiscoverBooksScreen />", () => {
     });
 
     describe("And I enter an unexisting book name and click the search button", () => {
-      beforeEach(() => {
+      test("A not found message is displayed in the screen", async () => {
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           "dont exist"
         );
         userEvent.click(screen.getByRole("button", { name: /search/i }));
-      });
 
-      test("A not found message is displayed in the screen", async () => {
         expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 
         await waitForElementToBeRemoved(() =>

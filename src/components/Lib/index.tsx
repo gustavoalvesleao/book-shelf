@@ -111,12 +111,15 @@ const Button = styled.button(
     buttonVariants[variant]
 );
 
-const Input = styled.input({
-  borderRadius: "3px",
-  border: `1px solid ${colors.gray10}`,
+const inputStyles = {
+  border: "1px solid #f1f1f4",
   background: "#f1f2f7",
   padding: "8px 12px",
-});
+};
+
+const Input = styled.input({ borderRadius: "3px" }, inputStyles);
+
+const Textarea = styled.textarea(inputStyles);
 
 const CircleButton = styled.button({
   borderRadius: "30px",
@@ -161,4 +164,5 @@ export {
   ErrorMessage,
   FullPageSpinner,
   Link,
+  Textarea,
 };

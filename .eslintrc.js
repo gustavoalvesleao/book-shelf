@@ -71,6 +71,12 @@ module.exports = {
         "newlines-between": "always-and-inside-groups",
       },
     ],
+    "react/jsx-no-bind": [
+      "error",
+      {
+        allowArrowFunctions: true,
+      },
+    ],
   },
   overrides: [
     {
