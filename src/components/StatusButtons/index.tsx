@@ -12,13 +12,17 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import Tooltip from "@reach/tooltip";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { CircleButton, Spinner } from "components/Lib";
 import { useAsync } from "utils/hooks";
-import { Book, ListItem, User } from "utils/types";
-import { client } from "utils/api-client";
+import { Book, User } from "utils/types";
 import * as colors from "styles/colors";
+import {
+  useCreateListItem,
+  useListItem,
+  useRemoveListItem,
+  useUpdateListItem,
+} from "utils/list-items";
 
 interface ToolTipProps {
   label: string;
@@ -33,36 +37,12 @@ interface Props {
 }
 
 function StatusButtons({ user, book }: Props) {
-  const queryClient = useQueryClient();
+  const listItem = useListItem(user, book.id);
 
-  const { data: listItems } = useQuery("list-items", () =>
-    client("list-items", { token: user.token }).then((data) => data.listItems)
-  );
-
-  const listItem =
-    listItems?.find((li: ListItem) => li.bookId === book.id) ?? null;
-
-  const { mutateAsync: update } = useMutation(
-    (updates: { id: string; finishDate: number | null }) =>
-      client(`list-items/${updates.id}`, {
-        method: "PUT",
-        data: updates,
-        token: user.token,
-      }),
-    { onSettled: () => queryClient.invalidateQueries("list-items") }
-  );
-
-  const { mutateAsync: remove } = useMutation(
-    ({ id }: { id: string }) =>
-      client(`list-items/${id}`, { method: "DELETE", token: user.token }),
-    { onSettled: () => queryClient.invalidateQueries("list-items") }
-  );
-
-  const { mutateAsync: create } = useMutation(
-    ({ bookId }: { bookId: string }) =>
-      client("list-items", { data: { bookId }, token: user.token }),
-    { onSettled: () => queryClient.invalidateQueries("list-items") }
-  );
+  const { mutateAsync: update } =
+    useUpdateListItem<{ id: string; finishDate: number | null }>(user);
+  const { mutateAsync: remove } = useRemoveListItem(user);
+  const { mutateAsync: create } = useCreateListItem(user);
 
   return (
     <React.Fragment>

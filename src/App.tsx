@@ -51,6 +51,7 @@ function App() {
     auth.register(form).then((newUser) => setData(newUser));
   const logout = () => {
     auth.logout();
+    queryClient.clear();
     setData(null);
   };
 

@@ -5,23 +5,21 @@ import { jsx } from "@emotion/react";
 import React from "react";
 import Tooltip from "@reach/tooltip";
 import { FaSearch, FaTimes } from "react-icons/fa";
-import { useQuery } from "react-query";
 
 import BookRow from "components/BookRow";
 import { Input, BookListUL, Spinner, ErrorMessage } from "components/Lib";
-import { client } from "utils/api-client";
 import * as colors from "styles/colors";
+import { useBookSearch } from "utils/books";
 
 import { User } from "utils/types";
 
-import { Data, SearchFormElements } from "./types";
+import { SearchFormElements } from "./types";
 
 function DiscoverBooksScreen({ user }: { user: User }) {
   const [query, setQuery] = React.useState<string>("");
-  const { data, error, isLoading, isError, isSuccess } = useQuery<Data, Error>(
-    ["bookSearch", { query }],
-    () =>
-      client(`books?query=${encodeURIComponent(query)}`, { token: user.token })
+  const { books, error, isLoading, isError, isSuccess } = useBookSearch(
+    query,
+    user
   );
 
   const handleSearchSubmit = (event: React.FormEvent<SearchFormElements>) => {
@@ -66,9 +64,9 @@ function DiscoverBooksScreen({ user }: { user: User }) {
       {isError ? <ErrorMessage error={error} /> : null}
 
       {isSuccess ? (
-        data?.books?.length ? (
+        books?.length ? (
           <BookListUL css={{ marginTop: 20 }}>
-            {data.books.map((book) => (
+            {books.map((book) => (
               <li key={book.id} aria-label={book.title}>
                 <BookRow key={book.id} book={book} user={user} />
               </li>

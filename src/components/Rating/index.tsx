@@ -4,13 +4,12 @@
 import { jsx } from "@emotion/react";
 
 import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
 import { FaStar } from "react-icons/fa";
 
 import { ListItem, User } from "utils/types";
-import { client } from "utils/api-client";
 
 import * as colors from "styles/colors";
+import { useUpdateListItem } from "utils/list-items";
 
 const visuallyHiddenCSS = {
   border: "0",
@@ -24,17 +23,7 @@ const visuallyHiddenCSS = {
 };
 
 function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
-  const queryClient = useQueryClient();
-
-  const { mutate: update } = useMutation(
-    (updates: { id: string; rating: number }) =>
-      client(`list-items/${updates.id}`, {
-        method: "PUT",
-        data: updates,
-        token: user.token,
-      }),
-    { onSettled: () => queryClient.invalidateQueries("list-items") }
-  );
+  const { mutate } = useUpdateListItem<{ id: string; rating: number }>(user);
 
   const rootClassName = `list-item-${listItem.id}`;
 
@@ -51,7 +40,7 @@ function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
           value={ratingValue}
           checked={ratingValue === listItem.rating}
           onChange={() => {
-            update({ id: listItem.id, rating: ratingValue });
+            mutate({ id: listItem.id, rating: ratingValue });
           }}
           css={[
             visuallyHiddenCSS,
