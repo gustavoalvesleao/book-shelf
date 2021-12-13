@@ -4,42 +4,25 @@
 import { jsx } from "@emotion/react";
 import * as React from "react";
 import { useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import Tooltip from "@reach/tooltip";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
 import { ListItem, User } from "utils/types";
-import { client } from "utils/api-client";
 import { debounce, formatDate } from "utils/misc";
 import StatusButtons from "components/StatusButtons";
 import Rating from "components/Rating";
 import { Textarea } from "components/Lib";
 import * as mq from "styles/media-queries";
 import * as colors from "styles/colors";
-import bookPlaceholderSvg from "assets/book-placeholder.svg";
-
-const loadingBook = {
-  title: "Loading...",
-  author: "loading...",
-  coverImageUrl: bookPlaceholderSvg,
-  publisher: "Loading Publishing",
-  synopsis: "Loading...",
-  loadingBook: true,
-};
+import { useBook } from "utils/books";
+import { useListItem, useUpdateListItem } from "utils/list-items";
 
 function BookScreen({ user }: { user: User }) {
   const { bookId } = useParams();
 
-  const { data: book = loadingBook } = useQuery(["book", { bookId }], () =>
-    client(`books/${bookId}`, { token: user.token }).then((data) => data.book)
-  );
+  const book = useBook(bookId, user);
 
-  const { data: listItems } = useQuery("list-items", () =>
-    client("list-items", { token: user.token }).then((data) => data.listItems)
-  );
-
-  const listItem =
-    listItems?.find((li: ListItem) => li.bookId === book.id) ?? null;
+  const listItem = useListItem(user, book.id);
 
   const { title, author, coverImageUrl, publisher, synopsis } = book;
 
@@ -123,17 +106,7 @@ function ListItemTimeframe({ listItem }: { listItem: ListItem }) {
 }
 
 function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
-  const queryClient = useQueryClient();
-
-  const { mutate } = useMutation(
-    (updates: { id: string; notes: string }) =>
-      client(`list-items/${updates.id}`, {
-        method: "PUT",
-        data: updates,
-        token: user.token,
-      }),
-    { onSettled: () => queryClient.invalidateQueries("list-items") }
-  );
+  const { mutate } = useUpdateListItem<{ id: string; notes: string }>(user);
 
   const [debouncedMutate] = React.useMemo(
     () => debounce(mutate, 300),

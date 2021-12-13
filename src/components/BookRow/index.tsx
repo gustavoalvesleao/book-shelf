@@ -4,25 +4,19 @@
 import { jsx } from "@emotion/react";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "react-query";
 
 import * as mq from "styles/media-queries";
 import * as colors from "styles/colors";
-import { client } from "utils/api-client";
-import { Book, ListItem, User } from "utils/types";
+import { Book, User } from "utils/types";
 
 import Rating from "components/Rating";
 import StatusButtons from "components/StatusButtons";
+import { useListItem } from "utils/list-items";
 
 function BookRow({ user, book }: { user: User; book: Book }) {
   const { title, author, coverImageUrl } = book;
 
-  const { data: listItems } = useQuery("list-items", () =>
-    client("list-items", { token: user.token }).then((data) => data.listItems)
-  );
-
-  const listItem =
-    listItems?.find((li: ListItem) => li.bookId === book.id) ?? null;
+  const listItem = useListItem(user, book.id);
 
   const id = `book-row-book-${book.id}`;
 
