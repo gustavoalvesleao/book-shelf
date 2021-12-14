@@ -11,6 +11,8 @@ import BookScreen from "screens/Book";
 
 import { User } from "utils/types";
 
+import ReadingListScreen from "screens/ReadingList";
+
 import { Button } from "./components/Lib";
 
 import * as mq from "./styles/media-queries";
@@ -113,6 +115,7 @@ function Nav() {
         padding: "1em 1.5em",
         border: `1px solid ${colors.gray10}`,
         borderRadius: "3px",
+        minWidth: "max-content",
         [mq.small]: {
           position: "static",
           top: "auto",
@@ -126,6 +129,9 @@ function Nav() {
         }}
       >
         <li>
+          <NavLink to="/list">Reading List</NavLink>
+        </li>
+        <li>
           <NavLink to="/discover">Discover</NavLink>
         </li>
       </ul>
@@ -136,6 +142,7 @@ function Nav() {
 function AppRoutes({ user }: { user: User }) {
   return (
     <Routes>
+      <Route path="/list" element={<ReadingListScreen user={user} />} />
       <Route path="/discover" element={<DiscoverBooksScreen user={user} />} />
       <Route path="/book/:bookId" element={<BookScreen user={user} />} />
       <Route path="*" element={<NotFoundScreen />} />
