@@ -13,6 +13,8 @@ import { User } from "utils/types";
 
 import ReadingListScreen from "screens/ReadingList";
 
+import FinishedScreen from "screens/FinishedList";
+
 import { Button } from "./components/Lib";
 
 import * as mq from "./styles/media-queries";
@@ -132,6 +134,9 @@ function Nav() {
           <NavLink to="/list">Reading List</NavLink>
         </li>
         <li>
+          <NavLink to="/finished">Finished Books</NavLink>
+        </li>
+        <li>
           <NavLink to="/discover">Discover</NavLink>
         </li>
       </ul>
@@ -143,6 +148,7 @@ function AppRoutes({ user }: { user: User }) {
   return (
     <Routes>
       <Route path="/list" element={<ReadingListScreen user={user} />} />
+      <Route path="/finished" element={<FinishedScreen user={user} />} />
       <Route path="/discover" element={<DiscoverBooksScreen user={user} />} />
       <Route path="/book/:bookId" element={<BookScreen user={user} />} />
       <Route path="*" element={<NotFoundScreen />} />
