@@ -15,7 +15,7 @@ import Tooltip from "@reach/tooltip";
 
 import { CircleButton, Spinner } from "components/Lib";
 import { useAsync } from "utils/hooks";
-import { Book, User } from "utils/types";
+import { Book, ListItem, User } from "utils/types";
 import * as colors from "styles/colors";
 import {
   useCreateListItem,
@@ -39,10 +39,7 @@ interface Props {
 function StatusButtons({ user, book }: Props) {
   const listItem = useListItem(user, book.id);
 
-  const { mutateAsync: update } = useUpdateListItem<{
-    id: string;
-    finishDate: number | null;
-  }>(user);
+  const { mutateAsync: update } = useUpdateListItem(user);
   const { mutateAsync: remove } = useRemoveListItem(user);
   const { mutateAsync: create } = useCreateListItem(user);
 
@@ -53,14 +50,18 @@ function StatusButtons({ user, book }: Props) {
           <TooltipButton
             label="Unmark as read"
             highlight={colors.yellow}
-            onClick={() => update({ id: listItem.id, finishDate: null })}
+            onClick={() =>
+              update({ id: listItem.id, finishDate: null } as ListItem)
+            }
             icon={<FaBook />}
           />
         ) : (
           <TooltipButton
             label="Mark as read"
             highlight={colors.green}
-            onClick={() => update({ id: listItem.id, finishDate: Date.now() })}
+            onClick={() =>
+              update({ id: listItem.id, finishDate: Date.now() } as ListItem)
+            }
             icon={<FaCheckCircle />}
           />
         )
@@ -69,14 +70,14 @@ function StatusButtons({ user, book }: Props) {
         <TooltipButton
           label="Remove from list"
           highlight={colors.danger}
-          onClick={() => remove({ id: listItem.id })}
+          onClick={() => remove({ id: listItem.id } as ListItem)}
           icon={<FaMinusCircle />}
         />
       ) : (
         <TooltipButton
           label="Add to list"
           highlight={colors.indigo}
-          onClick={() => create({ bookId: book.id })}
+          onClick={() => create({ bookId: book.id } as ListItem)}
           icon={<FaPlusCircle />}
         />
       )}

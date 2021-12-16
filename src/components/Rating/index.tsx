@@ -24,10 +24,7 @@ const visuallyHiddenCSS = {
 };
 
 function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
-  const { mutate, error, isError } = useUpdateListItem<{
-    id: string;
-    rating: number;
-  }>(user);
+  const { mutate, error, isError } = useUpdateListItem(user);
 
   const rootClassName = `list-item-${listItem.id}`;
 
@@ -44,7 +41,7 @@ function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
           value={ratingValue}
           checked={ratingValue === listItem.rating}
           onChange={() => {
-            mutate({ id: listItem.id, rating: ratingValue });
+            mutate({ id: listItem.id, rating: ratingValue } as ListItem);
           }}
           css={[
             visuallyHiddenCSS,

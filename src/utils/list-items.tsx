@@ -5,12 +5,20 @@ import {
   useQueryClient,
 } from "react-query";
 
+import { ListItem, User } from "utils/types";
+
 import { client } from "./api-client";
 import { setQueryDataForBook } from "./books";
-import { ListItem, User } from "./types";
 
 function getDefaultMutationOptions(queryClient: QueryClient) {
-  return { onSettled: () => queryClient.invalidateQueries("list-items") };
+  return {
+    onError: (_err: Error, _newItem: ListItem, recover: unknown) => {
+      if (typeof recover === "function") {
+        recover();
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries("list-items"),
+  };
 }
 
 function useListItems(user: User) {
@@ -37,17 +45,28 @@ function useListItem(user: User, bookId: string | undefined) {
   return listItems.find((li: ListItem) => li.bookId === bookId) ?? null;
 }
 
-function useUpdateListItem<T extends { id: string }>(user: User) {
+function useUpdateListItem(user: User) {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    (updates: T) =>
+  return useMutation<ListItem, Error, ListItem>(
+    (updates) =>
       client(`list-items/${updates.id}`, {
         method: "PUT",
         data: updates,
         token: user.token,
       }),
-    getDefaultMutationOptions(queryClient)
+    {
+      onMutate: (newItem) => {
+        const previousItems = queryClient.getQueryData("list-items");
+        queryClient.setQueryData<ListItem[] | undefined>("list-items", (old) =>
+          old?.map((item) =>
+            item.id === newItem.id ? { ...item, ...newItem } : item
+          )
+        );
+        return () => queryClient.setQueryData("list-items", previousItems);
+      },
+      ...getDefaultMutationOptions(queryClient),
+    }
   );
 }
 
@@ -57,7 +76,16 @@ function useRemoveListItem(user: User) {
   return useMutation(
     ({ id }: { id: string }) =>
       client(`list-items/${id}`, { method: "DELETE", token: user.token }),
-    getDefaultMutationOptions(queryClient)
+    {
+      onMutate: (removedItem) => {
+        const previousItems = queryClient.getQueryData("list-items");
+        queryClient.setQueryData<ListItem[] | undefined>("list-items", (old) =>
+          old?.filter((item) => removedItem.id !== item.id)
+        );
+        return () => queryClient.setQueryData("list-items", previousItems);
+      },
+      ...getDefaultMutationOptions(queryClient),
+    }
   );
 }
 
@@ -67,7 +95,9 @@ function useCreateListItem(user: User) {
   return useMutation(
     ({ bookId }: { bookId: string }) =>
       client("list-items", { data: { bookId }, token: user.token }),
-    getDefaultMutationOptions(queryClient)
+    {
+      ...getDefaultMutationOptions(queryClient),
+    }
   );
 }
 
