@@ -44,13 +44,10 @@ describe("<DiscoverBooksScreen />", () => {
     });
 
     describe("and I enter an existing book name and click the search button", () => {
-      beforeEach(async () => {
+      test("The book is information displayed on the screen", async () => {
         await waitForElementToBeRemoved(() =>
           screen.getByLabelText(/loading/i)
         );
-      });
-
-      test("The book is information displayed on the screen", async () => {
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           bookName
@@ -81,6 +78,10 @@ describe("<DiscoverBooksScreen />", () => {
 
     describe("And an error occur in the request", () => {
       test("A failure error message is displayed in the screen", async () => {
+        await waitForElementToBeRemoved(() =>
+          screen.getByLabelText(/loading/i)
+        );
+
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           "FAIL"
@@ -107,6 +108,10 @@ describe("<DiscoverBooksScreen />", () => {
 
     describe("And I enter an unexisting book name and click the search button", () => {
       test("A not found message is displayed in the screen", async () => {
+        await waitForElementToBeRemoved(() =>
+          screen.getByLabelText(/loading/i)
+        );
+
         userEvent.type(
           screen.getByRole("textbox", { name: /search/i }),
           "dont exist"
