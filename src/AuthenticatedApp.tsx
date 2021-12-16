@@ -5,6 +5,8 @@ import { jsx } from "@emotion/react";
 import React from "react";
 import { Routes, Route, Link, LinkProps, useMatch } from "react-router-dom";
 
+import { ErrorBoundary } from "react-error-boundary";
+
 import DiscoverBooksScreen from "screens/DiscoverBooks";
 import NotFoundScreen from "screens/NotFound";
 import BookScreen from "screens/Book";
@@ -15,7 +17,7 @@ import ReadingListScreen from "screens/ReadingList";
 
 import FinishedScreen from "screens/FinishedList";
 
-import { Button } from "./components/Lib";
+import { Button, ErrorMessage } from "./components/Lib";
 
 import * as mq from "./styles/media-queries";
 import * as colors from "./styles/colors";
@@ -23,6 +25,21 @@ import * as colors from "./styles/colors";
 interface Props {
   user: User;
   logout: () => void;
+}
+
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <ErrorMessage
+      error={error}
+      css={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    />
+  );
 }
 
 function AuthenticatedApp({ user, logout }: Props) {
@@ -66,7 +83,9 @@ function AuthenticatedApp({ user, logout }: Props) {
           <Nav />
         </div>
         <main css={{ width: "100%" }}>
-          <AppRoutes user={user} />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <AppRoutes user={user} />
+          </ErrorBoundary>
         </main>
       </div>
     </React.Fragment>

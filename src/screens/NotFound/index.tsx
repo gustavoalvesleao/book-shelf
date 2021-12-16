@@ -15,9 +15,7 @@ function NotFoundScreen() {
         justifyContent: "center",
       }}
     >
-      <div>
-        Sorry... nothing here. <Link to="/discover">Go Home.</Link>
-      </div>
+      Sorry... nothing here. <Link to="/discover">Go Home.</Link>
     </div>
   );
 }

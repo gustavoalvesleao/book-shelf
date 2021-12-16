@@ -36,7 +36,16 @@ function asyncReducer<DataType>(
   state: AsyncState<DataType>,
   action: AsyncAction<DataType>
 ): AsyncState<DataType> {
-  switch (action.type) {
+  const actionType = action.type;
+  switch (actionType) {
+    case "reset": {
+      return {
+        status: "idle",
+        data: null,
+        error: null,
+        promise: null,
+      };
+    }
     case "pending": {
       return {
         status: "pending",
@@ -64,19 +73,21 @@ function asyncReducer<DataType>(
       };
     }
     default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
+      throw new Error(`Unhandled action type: ${actionType}`);
     }
   }
 }
 
 function useAsync<DataType>() {
   const mounted = React.useRef(false);
+
   const [state, unsafeDispatch] = React.useReducer<
     React.Reducer<AsyncState<DataType>, AsyncAction<DataType>>
   >(asyncReducer, {
     status: "idle",
     data: null,
     error: null,
+    promise: null,
   });
 
   React.useLayoutEffect(() => {
@@ -117,6 +128,11 @@ function useAsync<DataType>() {
     [dispatch]
   );
 
+  const reset = React.useCallback(
+    () => dispatch({ type: "reset" }),
+    [dispatch]
+  );
+
   return {
     isIdle: status === "idle",
     isLoading: status === "pending",
@@ -129,6 +145,7 @@ function useAsync<DataType>() {
     status,
     data,
     run,
+    reset,
   };
 }
 

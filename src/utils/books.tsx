@@ -11,13 +11,13 @@ const loadingBook = {
   coverImageUrl: bookPlaceholderSvg,
   publisher: "Loading Publishing",
   synopsis: "Loading...",
-  loadingBook: true,
   pageCount: 0,
+  id: "loading...",
 };
 
 const loadingBooks = Array.from({ length: 10 }, (_v, index) => ({
-  id: `loading-book-${index}`,
   ...loadingBook,
+  id: `loading-book-${index}`,
 })) as Book[];
 
 function useBookSearch(query: string, user: User) {
@@ -30,10 +30,11 @@ function useBookSearch(query: string, user: User) {
 }
 
 function useBook(bookId: string | undefined, user: User) {
-  const { data } = useQuery(["book", { bookId }], () =>
+  const response = useQuery<Book, Error>(["book", { bookId }], () =>
     client(`books/${bookId}`, { token: user.token }).then((data) => data.book)
   );
-  return data ?? loadingBook;
+
+  return { ...response, data: response.data ?? loadingBook };
 }
 
 export { useBookSearch, useBook };

@@ -11,7 +11,7 @@ import { ListItem, User } from "utils/types";
 import { debounce, formatDate } from "utils/misc";
 import StatusButtons from "components/StatusButtons";
 import Rating from "components/Rating";
-import { Textarea } from "components/Lib";
+import { ErrorMessage, Link, Textarea } from "components/Lib";
 import * as mq from "styles/media-queries";
 import * as colors from "styles/colors";
 import { useBook } from "utils/books";
@@ -19,12 +19,19 @@ import { useListItem, useUpdateListItem } from "utils/list-items";
 
 function BookScreen({ user }: { user: User }) {
   const { bookId } = useParams();
-
-  const book = useBook(bookId, user);
-
+  const { data: book, error, isError, isLoading } = useBook(bookId, user);
   const listItem = useListItem(user, book.id);
 
   const { title, author, coverImageUrl, publisher, synopsis } = book;
+
+  if (isError) {
+    return (
+      <div>
+        <ErrorMessage error={error} />
+        <Link to="/discover">Go Home.</Link>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -65,9 +72,7 @@ function BookScreen({ user }: { user: User }) {
                 minHeight: 100,
               }}
             >
-              {book.loadingBook ? null : (
-                <StatusButtons user={user} book={book} />
-              )}
+              {isLoading ? null : <StatusButtons user={user} book={book} />}
             </div>
           </div>
           <div css={{ marginTop: 10, height: 46 }}>
@@ -80,7 +85,7 @@ function BookScreen({ user }: { user: User }) {
           <p>{synopsis}</p>
         </div>
       </div>
-      {!book.loadingBook && listItem ? (
+      {!isLoading && listItem ? (
         <NotesTextarea user={user} listItem={listItem} />
       ) : null}
     </div>
@@ -106,7 +111,8 @@ function ListItemTimeframe({ listItem }: { listItem: ListItem }) {
 }
 
 function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
-  const { mutate } = useUpdateListItem<{ id: string; notes: string }>(user);
+  const { mutate, error, isError } =
+    useUpdateListItem<{ id: string; notes: string }>(user);
 
   const [debouncedMutate] = React.useMemo(
     () => debounce(mutate, 300),
@@ -132,6 +138,13 @@ function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
         >
           Notes
         </label>
+        {isError ? (
+          <ErrorMessage
+            error={error as Error}
+            variant="inline"
+            css={{ marginLeft: 6, fontSize: "0.7em" }}
+          />
+        ) : null}
       </div>
       <Textarea
         id="notes"

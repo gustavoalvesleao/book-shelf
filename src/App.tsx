@@ -9,7 +9,7 @@ import { client } from "utils/api-client";
 import { useAsync } from "utils/hooks";
 import * as colors from "styles/colors";
 
-import { User } from "utils/types";
+import { NetworkError, User } from "utils/types";
 
 import * as auth from "./auth-provider";
 
@@ -18,7 +18,19 @@ const UnauthenticatedApp = React.lazy(
   async () => import("./UnauthenticatedApp")
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry(failureCount, error) {
+        const err = error as NetworkError;
+        if (err.status === 404) return false;
+        if (failureCount < 2) return true;
+        return false;
+      },
+    },
+  },
+});
 
 async function getUser() {
   const token = await auth.getToken();
