@@ -1,4 +1,5 @@
-import { QueryClient, useQuery } from "react-query";
+import React from "react";
+import { QueryClient, useQuery, useQueryClient } from "react-query";
 
 import bookPlaceholderSvg from "assets/book-placeholder.svg";
 
@@ -20,16 +21,29 @@ const loadingBooks = Array.from({ length: 10 }, (_v, index) => ({
   id: `loading-book-${index}`,
 })) as Book[];
 
-const getBookSearchConfig = (query: string, user: User) => ({
+const getBookSearchConfig = (
+  query: string,
+  user: User,
+  queryClient: QueryClient
+) => ({
   queryKey: ["bookSearch", { query }],
   queryFn: () =>
     client(`books?query=${encodeURIComponent(query)}`, {
       token: user.token,
     }).then((data) => data.books),
+  onSuccess(books: Book[]) {
+    for (const book of books) {
+      setQueryDataForBook(queryClient, book);
+    }
+  },
 });
 
 function useBookSearch(query: string, user: User) {
-  const result = useQuery<Book[], Error>(getBookSearchConfig(query, user));
+  const queryClient = useQueryClient();
+
+  const result = useQuery<Book[], Error>(
+    getBookSearchConfig(query, user, queryClient)
+  );
   return { ...result, books: result.data ?? loadingBooks };
 }
 
@@ -41,9 +55,22 @@ function useBook(bookId: string | undefined, user: User) {
   return { ...response, data: response.data ?? loadingBook };
 }
 
-function refetchBookSearchQuery(user: User, queryClient: QueryClient) {
-  queryClient.removeQueries("bookSearch");
-  queryClient.prefetchQuery(getBookSearchConfig("", user));
+function useRefetchBookSearchQuery(user: User) {
+  const queryClient = useQueryClient();
+
+  return React.useCallback(() => {
+    queryClient.removeQueries("bookSearch");
+    queryClient.prefetchQuery(getBookSearchConfig("", user, queryClient));
+  }, [queryClient, user]);
 }
 
-export { useBookSearch, useBook, refetchBookSearchQuery };
+function setQueryDataForBook(queryClient: QueryClient, book: Book) {
+  queryClient.setQueryData(["book", { bookId: book.id }], book);
+}
+
+export {
+  useBookSearch,
+  useBook,
+  useRefetchBookSearchQuery,
+  setQueryDataForBook,
+};

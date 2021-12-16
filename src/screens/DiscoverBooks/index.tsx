@@ -6,30 +6,26 @@ import React from "react";
 import Tooltip from "@reach/tooltip";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
-import { useQueryClient } from "react-query";
-
 import BookRow from "components/BookRow";
 import { Input, BookListUL, Spinner, ErrorMessage } from "components/Lib";
 import * as colors from "styles/colors";
-import { refetchBookSearchQuery, useBookSearch } from "utils/books";
+import { useBookSearch, useRefetchBookSearchQuery } from "utils/books";
 
 import { User } from "utils/types";
 
 import { SearchFormElements } from "./types";
 
 function DiscoverBooksScreen({ user }: { user: User }) {
-  const queryClient = useQueryClient();
   const [query, setQuery] = React.useState<string>("");
   const { books, error, isLoading, isError, isSuccess } = useBookSearch(
     query,
     user
   );
+  const refetchBookSearchQuery = useRefetchBookSearchQuery(user);
 
   React.useEffect(
-    () => () => {
-      refetchBookSearchQuery(user, queryClient);
-    },
-    [queryClient, user]
+    () => () => refetchBookSearchQuery(),
+    [refetchBookSearchQuery]
   );
 
   const handleSearchSubmit = (event: React.FormEvent<SearchFormElements>) => {
