@@ -52,6 +52,12 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "no-nested-ternary": "off",
+    "no-restricted-syntax": [
+      "error",
+      "ForInStatement",
+      "LabeledStatement",
+      "WithStatement",
+    ],
     "import/no-extraneous-dependencies": [
       "error",
       { devDependencies: ["**/*.test.ts", "**/*.test.tsx"] },

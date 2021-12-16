@@ -6,6 +6,7 @@ import {
 } from "react-query";
 
 import { client } from "./api-client";
+import { setQueryDataForBook } from "./books";
 import { ListItem, User } from "./types";
 
 function getDefaultMutationOptions(queryClient: QueryClient) {
@@ -13,9 +14,20 @@ function getDefaultMutationOptions(queryClient: QueryClient) {
 }
 
 function useListItems(user: User) {
-  const { data: listItems } = useQuery("list-items", () =>
-    client("list-items", { token: user.token }).then((data) => data.listItems)
-  );
+  const queryClient = useQueryClient();
+
+  const { data: listItems } = useQuery({
+    queryKey: "list-items",
+    queryFn: () =>
+      client("list-items", { token: user.token }).then(
+        (data) => data.listItems
+      ),
+    onSuccess(listItems: ListItem[]) {
+      for (const listItem of listItems) {
+        setQueryDataForBook(queryClient, listItem.book);
+      }
+    },
+  });
 
   return listItems ?? [];
 }
