@@ -20,7 +20,7 @@ export interface ListItem {
   ownerId: string;
   rating: number;
   notes: string;
-  finishDate: number;
+  finishDate: number | null;
   startDate: number;
   book: Book;
 }

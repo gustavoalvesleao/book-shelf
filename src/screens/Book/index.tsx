@@ -111,8 +111,7 @@ function ListItemTimeframe({ listItem }: { listItem: ListItem }) {
 }
 
 function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
-  const { mutate, error, isError, isLoading } =
-    useUpdateListItem<{ id: string; notes: string }>(user);
+  const { mutate, error, isError, isLoading } = useUpdateListItem(user);
 
   const [debouncedMutate] = React.useMemo(
     () => debounce(mutate, 300),
@@ -120,7 +119,7 @@ function NotesTextarea({ listItem, user }: { listItem: ListItem; user: User }) {
   );
 
   const handleNotesChange = (e: string) => {
-    debouncedMutate({ id: listItem.id, notes: e });
+    debouncedMutate({ id: listItem.id, notes: e } as ListItem);
   };
 
   return (
