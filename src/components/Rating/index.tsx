@@ -10,6 +10,7 @@ import { ListItem, User } from "utils/types";
 
 import * as colors from "styles/colors";
 import { useUpdateListItem } from "utils/list-items";
+import { ErrorMessage } from "components/Lib";
 
 const visuallyHiddenCSS = {
   border: "0",
@@ -23,7 +24,10 @@ const visuallyHiddenCSS = {
 };
 
 function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
-  const { mutate } = useUpdateListItem<{ id: string; rating: number }>(user);
+  const { mutate, error, isError } = useUpdateListItem<{
+    id: string;
+    rating: number;
+  }>(user);
 
   const rootClassName = `list-item-${listItem.id}`;
 
@@ -86,6 +90,13 @@ function Rating({ listItem, user }: { listItem: ListItem; user: User }) {
       }}
     >
       <span css={{ display: "flex" }}>{stars}</span>
+      {isError ? (
+        <ErrorMessage
+          error={error as Error}
+          variant="inline"
+          css={{ marginLeft: 6, fontSize: "0.7em" }}
+        />
+      ) : null}
     </div>
   );
 }

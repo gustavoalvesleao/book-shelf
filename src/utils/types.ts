@@ -24,3 +24,8 @@ export interface ListItem {
   startDate: number;
   book: Book;
 }
+
+export interface NetworkError {
+  status: number;
+  message: string;
+}

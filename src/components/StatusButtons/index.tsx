@@ -39,8 +39,10 @@ interface Props {
 function StatusButtons({ user, book }: Props) {
   const listItem = useListItem(user, book.id);
 
-  const { mutateAsync: update } =
-    useUpdateListItem<{ id: string; finishDate: number | null }>(user);
+  const { mutateAsync: update } = useUpdateListItem<{
+    id: string;
+    finishDate: number | null;
+  }>(user);
   const { mutateAsync: remove } = useRemoveListItem(user);
   const { mutateAsync: create } = useCreateListItem(user);
 
@@ -89,10 +91,14 @@ function TooltipButton({
   icon,
   ...rest
 }: ToolTipProps) {
-  const { isLoading, isError, error, run } = useAsync();
+  const { isLoading, isError, error, run, reset } = useAsync();
 
   const handleClick = () => {
-    run(onClick());
+    if (isError) {
+      reset();
+    } else {
+      run(onClick());
+    }
   };
 
   return (
