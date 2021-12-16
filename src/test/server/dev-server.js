@@ -2,7 +2,8 @@
 
 import { setupWorker } from "msw";
 import { handlers } from "./server-handlers";
-import { homepage } from "../../../package.json";
+
+const homepage = "https://bookshelf.lol/";
 
 const fullUrl = new URL(homepage);
 
